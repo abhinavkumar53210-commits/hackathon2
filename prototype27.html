@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiPredict - AI Supply Chain Predictor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e17;
+            color: #e0e0e0;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            padding: 1.5rem 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .shipment-card {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border-left: 4px solid;
+        }
+        .card-green { border-left-color: #22c55e; }
+        .card-yellow { border-left-color: #f59e0b; }
+        .card-red { border-left-color: #ef4444; }
+        .risk-meter {
+            background: #334155;
+            border-radius: 0.5rem;
+            height: 8px;
+            margin: 1rem 0;
+        }
+        .risk-fill { border-radius: 0.5rem; height: 100%; }
+        .risk-high { background: #ef4444; }
+        .risk-medium { background: #f59e0b; }
+        .risk-low { background: #22c55e; }
+        .btn-reroute {
+            background: #3b82f6;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .insight-panel {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .alert-item {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #ef4444;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🤖 LogiPredict AI</h2>
+        <p>Predictive analytics for supply chain resilience</p>
+    </div>
+    <div class="container">
+        <div class="prediction-grid">
+            <div class="shipment-card card-green">
+                <div><strong>🚛 TRK-4821</strong> - Medical Supplies</div>
+                <div>NYC → Chicago | ETA: 3:15 PM</div>
+                <div class="risk-meter"><div class="risk-fill risk-low" style="width:15%"></div></div>
+                <div>Risk Score: 15% | Status: On Track</div>
+            </div>
+            <div class="shipment-card card-yellow" id="shipmentYellow">
+                <div><strong>🚛 TRK-6734</strong> - Perishable Goods</div>
+                <div>Denver → Seattle | ETA: 7:30 PM</div>
+                <div class="risk-meter"><div class="risk-fill risk-medium" style="width:78%"></div></div>
+                <div>Risk Score: 78% | ⚠️ Weather Alert I-90</div>
+                <button class="btn-reroute" onclick="predictAndReroute(this, 'TRK-6734')">🔮 AI Predict & Reroute</button>
+            </div>
+            <div class="shipment-card card-red" id="shipmentRed">
+                <div><strong>🚛 TRK-2190</strong> - Electronics</div>
+                <div>LA → Portland | ETA: Tomorrow 2:00 PM</div>
+                <div class="risk-meter"><div class="risk-fill risk-high" style="width:95%"></div></div>
+                <div>Risk Score: 95% | 🔴 Active Disruption</div>
+                <button class="btn-reroute" onclick="predictAndReroute(this, 'TRK-2190')">🔮 AI Predict & Reroute</button>
+            </div>
+        </div>
+
+        <div class="insight-panel">
+            <h3>🧠 AI Predictive Insights</h3>
+            <div id="insightList">
+                <div class="alert-item">🔮 Prediction: TRK-6734 has 78% probability of delay due to I-90 weather conditions. Recommended reroute via I-84 saves 2.2 hours.</div>
+                <div class="alert-item">🔮 Prediction: TRK-2190 currently stuck in active disruption. Alternative route via US-97 available.</div>
+                <div class="alert-item">📊 System-wide: 12 shipments showing elevated risk scores. 3 require immediate attention.</div>
+            </div>
+            <button class="btn-reroute" style="background:#8b5cf6;" onclick="runBatchPrediction()">🔄 Run Batch Prediction</button>
+        </div>
+    </div>
+
+    <script>
+        function predictAndReroute(btn, shipmentId) {
+            btn.innerHTML = '✓ Rerouted - ETA Updated';
+            btn.disabled = true;
+            
+            const card = btn.closest('.shipment-card');
+            if (shipmentId === 'TRK-6734') {
+                card.classList.remove('card-yellow');
+                card.classList.add('card-green');
+                card.querySelector('.risk-fill').style.width = '20%';
+                card.querySelector('.risk-fill').className = 'risk-fill risk-low';
+                card.innerHTML = card.innerHTML.replace('Risk Score: 78%', 'Risk Score: 20%');
+                card.innerHTML = card.innerHTML.replace('⚠️ Weather Alert I-90', '✓ Rerouted - On Track');
+            } else {
+                card.classList.remove('card-red');
+                card.classList.add('card-green');
+                card.querySelector('.risk-fill').style.width = '25%';
+                card.querySelector('.risk-fill').className = 'risk-fill risk-low';
+                card.innerHTML = card.innerHTML.replace('Risk Score: 95%', 'Risk Score: 25%');
+                card.innerHTML = card.innerHTML.replace('🔴 Active Disruption', '✓ Rerouted - Resolved');
+            }
+            
+            const insightDiv = document.getElementById('insightList');
+            const successInsight = document.createElement('div');
+            successInsight.className = 'alert-item';
+            successInsight.style.borderLeftColor = '#22c55e';
+            successInsight.innerHTML = `✅ AI reroute executed for ${shipmentId}. Estimated ${shipmentId === 'TRK-6734' ? '2.2 hours' : '7.5 hours'} saved.`;
+            insightDiv.prepend(successInsight);
+        }
+
+        function runBatchPrediction() {
+            alert('🤖 AI analyzing 1,284 active shipments...\n\nPredictions complete: 8 shipments require attention. 3 reroutes recommended.');
+        }
+    </script>
+</body>
+</html>
